@@ -5,6 +5,7 @@ import { LoginPage } from '@/pages/LoginPage'
 import { DashboardPage } from '@/pages/DashboardPage'
 import { GuidesPage } from '@/pages/GuidesPage'
 import { AppConfigPage } from '@/pages/AppConfigPage'
+import { StatsPage } from '@/pages/StatsPage'
 
 function ProtectedLayout({ children }: { children: React.ReactNode }) {
   const { session, loading } = useAuth()
@@ -67,6 +68,14 @@ function AppRoutes() {
         element={
           <ProtectedLayout>
             <AppConfigPage />
+          </ProtectedLayout>
+        }
+      />
+      <Route
+        path="/stats"
+        element={
+          <ProtectedLayout>
+            <StatsPage />
           </ProtectedLayout>
         }
       />

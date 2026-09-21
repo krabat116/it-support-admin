@@ -1,4 +1,4 @@
-import { BookOpen, LayoutDashboard, LogOut, Settings } from 'lucide-react'
+import { BarChart2, BookOpen, LayoutDashboard, LogOut, Settings } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
 
@@ -6,6 +6,7 @@ const navItems = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/guides', label: 'Guide Management', icon: BookOpen },
   { to: '/config', label: 'App Configuration', icon: Settings },
+  { to: '/stats', label: 'Usage Statistics', icon: BarChart2 },
 ]
 
 export function AppSidebar() {
