@@ -1,0 +1,22 @@
+# 의존성
+node_modules/
+
+# 빌드 결과물
+dist/
+
+# 환경변수 (절대 커밋하지 마세요)
+.env
+.env.local
+.env.*.local
+
+# 에디터
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# 로그
+*.log
+npm-debug.log*
