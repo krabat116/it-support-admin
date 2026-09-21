@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Trash2 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 
 interface UsageLog {
@@ -28,6 +29,8 @@ export function StatsPage() {
   const [quickFixes, setQuickFixes] = useState<Map<string, string>>(new Map())
   const [categories, setCategories] = useState<Map<string, string>>(new Map())
   const [loading, setLoading] = useState(true)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [clearingAll, setClearingAll] = useState(false)
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -42,7 +45,6 @@ export function StatsPage() {
       ])
 
       if (logsRes.data) setLogs(logsRes.data as UsageLog[])
-
       if (qfRes.data) {
         setQuickFixes(new Map((qfRes.data as QuickFix[]).map(q => [q.id, q.label])))
       }
@@ -55,12 +57,30 @@ export function StatsPage() {
     void fetchAll()
   }, [])
 
+  const deleteRow = async (id: string) => {
+    setDeletingId(id)
+    const { error } = await supabase.from('usage_logs').delete().eq('id', id)
+    if (!error) {
+      setLogs(prev => prev.filter(l => l.id !== id))
+    }
+    setDeletingId(null)
+  }
+
+  const clearAll = async () => {
+    if (!window.confirm('모든 사용 기록을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) return
+    setClearingAll(true)
+    const { error } = await supabase.from('usage_logs').delete().neq('id', '')
+    if (!error) {
+      setLogs([])
+    }
+    setClearingAll(false)
+  }
+
   const totalEvents = logs.length
   const successCount = logs.filter(l => l.success).length
   const successRate = totalEvents > 0 ? Math.round((successCount / totalEvents) * 100) : 0
   const uniqueDevices = new Set(logs.map(l => l.hostname).filter(Boolean)).size
 
-  // Top 5 most used actions
   const actionCounts = new Map<string, number>()
   logs.forEach(l => actionCounts.set(l.action_id, (actionCounts.get(l.action_id) ?? 0) + 1))
   const topActions = [...actionCounts.entries()]
@@ -73,11 +93,23 @@ export function StatsPage() {
 
   return (
     <div>
-      <div className="mb-8">
-        <h2 className="text-2xl font-semibold">Usage Statistics</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Quick Fix execution history from all devices
-        </p>
+      <div className="mb-8 flex items-start justify-between">
+        <div>
+          <h2 className="text-2xl font-semibold">Usage Statistics</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Quick Fix execution history from all devices
+          </p>
+        </div>
+        {logs.length > 0 && (
+          <button
+            onClick={() => void clearAll()}
+            disabled={clearingAll}
+            className="flex items-center gap-2 rounded-md border border-destructive/40 px-3 py-2 text-sm text-destructive hover:bg-destructive/10 disabled:opacity-50"
+          >
+            <Trash2 size={14} />
+            {clearingAll ? 'Clearing...' : 'Clear All'}
+          </button>
+        )}
       </div>
 
       {/* Summary cards */}
@@ -154,6 +186,7 @@ export function StatsPage() {
                   <th className="px-5 py-3 font-medium">Result</th>
                   <th className="px-5 py-3 font-medium">Device</th>
                   <th className="px-5 py-3 font-medium">Version</th>
+                  <th className="px-5 py-3 font-medium w-10"></th>
                 </tr>
               </thead>
               <tbody>
@@ -177,6 +210,16 @@ export function StatsPage() {
                     </td>
                     <td className="px-5 py-3 text-muted-foreground">{log.hostname ?? '—'}</td>
                     <td className="px-5 py-3 text-muted-foreground">{log.app_version ?? '—'}</td>
+                    <td className="px-5 py-3">
+                      <button
+                        onClick={() => void deleteRow(log.id)}
+                        disabled={deletingId === log.id}
+                        className="rounded p-1 text-muted-foreground hover:bg-destructive/10 hover:text-destructive disabled:opacity-40"
+                        title="Delete"
+                      >
+                        <Trash2 size={13} />
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
