@@ -48,7 +48,7 @@ alter table quick_fixes       enable row level security;
 alter table settings_shortcuts enable row level security;
 alter table guides            enable row level security;
 
--- Allow full access for authenticated users
+-- Allow full access for authenticated users (admin portal)
 create policy "authenticated users" on categories
   for all to authenticated using (true) with check (true);
 
@@ -60,6 +60,19 @@ create policy "authenticated users" on settings_shortcuts
 
 create policy "authenticated users" on guides
   for all to authenticated using (true) with check (true);
+
+-- Allow read-only access for anon role (tray app uses anon key)
+create policy "anon read" on categories
+  for select to anon using (true);
+
+create policy "anon read" on quick_fixes
+  for select to anon using (true);
+
+create policy "anon read" on settings_shortcuts
+  for select to anon using (true);
+
+create policy "anon read" on guides
+  for select to anon using (true);
 
 -- ============================================================
 -- Storage Bucket — PDF guide files
