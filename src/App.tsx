@@ -60,7 +60,7 @@ function SessionLayout({ children }: { children: React.ReactNode }) {
 }
 
 function AppRoutes() {
-  const { session, loading, aalLevel } = useAuth()
+  const { loading, aalLevel } = useAuth()
 
   if (loading || aalLevel === null) {
     return (
