@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
 
 type Step = 'password' | 'mfa'
 
 export function LoginPage() {
+  const navigate = useNavigate()
   const [step, setStep] = useState<Step>('password')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -58,8 +60,9 @@ export function LoginPage() {
       }
     }
 
-    // No MFA enrolled — AuthContext + ProtectedLayout will redirect to /mfa-setup
+    // No MFA enrolled → go to dashboard; ProtectedLayout will redirect to /mfa-setup
     setLoading(false)
+    void navigate('/dashboard')
   }
 
   // Step 2: verify 6-digit TOTP code
