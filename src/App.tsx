@@ -6,21 +6,30 @@ import { DashboardPage } from '@/pages/DashboardPage'
 import { GuidesPage } from '@/pages/GuidesPage'
 import { AppConfigPage } from '@/pages/AppConfigPage'
 import { StatsPage } from '@/pages/StatsPage'
+import { MfaSetupPage } from '@/pages/MfaSetupPage'
 
+// Full access: requires session + aal2 (MFA verified)
 function ProtectedLayout({ children }: { children: React.ReactNode }) {
-  const { session, loading } = useAuth()
+  const { session, loading, aalLevel } = useAuth()
 
-  if (loading) {
+  if (loading || aalLevel === null) {
     return (
       <div className="flex h-screen items-center justify-center text-muted-foreground">
-        로딩 중...
+        Loading...
       </div>
     )
   }
 
-  if (!session) {
-    return <Navigate to="/login" replace />
-  }
+  if (!session) return <Navigate to="/login" replace />
+
+  // No MFA enrolled → must set up first
+  const hasEnrolledFactor = (session.user.factors ?? []).some(
+    f => f.factor_type === 'totp' && f.status === 'verified'
+  )
+  if (!hasEnrolledFactor) return <Navigate to="/mfa-setup" replace />
+
+  // MFA enrolled but not verified this session → back to login (MFA step)
+  if (aalLevel !== 'aal2') return <Navigate to="/login" replace />
 
   return (
     <div className="flex h-screen bg-background">
@@ -30,13 +39,33 @@ function ProtectedLayout({ children }: { children: React.ReactNode }) {
   )
 }
 
-function AppRoutes() {
-  const { session, loading } = useAuth()
+// Session-only access: requires session but NOT aal2 (used for MFA setup)
+function SessionLayout({ children }: { children: React.ReactNode }) {
+  const { session, loading, aalLevel } = useAuth()
 
-  if (loading) {
+  if (loading || aalLevel === null) {
     return (
       <div className="flex h-screen items-center justify-center text-muted-foreground">
-        로딩 중...
+        Loading...
+      </div>
+    )
+  }
+
+  if (!session) return <Navigate to="/login" replace />
+
+  // Already fully authenticated → go to dashboard
+  if (aalLevel === 'aal2') return <Navigate to="/dashboard" replace />
+
+  return <>{children}</>
+}
+
+function AppRoutes() {
+  const { session, loading, aalLevel } = useAuth()
+
+  if (loading || aalLevel === null) {
+    return (
+      <div className="flex h-screen items-center justify-center text-muted-foreground">
+        Loading...
       </div>
     )
   }
@@ -45,7 +74,15 @@ function AppRoutes() {
     <Routes>
       <Route
         path="/login"
-        element={session ? <Navigate to="/dashboard" replace /> : <LoginPage />}
+        element={aalLevel === 'aal2' ? <Navigate to="/dashboard" replace /> : <LoginPage />}
+      />
+      <Route
+        path="/mfa-setup"
+        element={
+          <SessionLayout>
+            <MfaSetupPage />
+          </SessionLayout>
+        }
       />
       <Route
         path="/dashboard"
