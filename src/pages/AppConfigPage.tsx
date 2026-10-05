@@ -139,7 +139,7 @@ function QuickFixesTab() {
 
   const grouped = categories.map((c) => ({
     category: c,
-    items: quickFixes.filter((q) => q.category_id === c.id && q.platform === platform),
+    items: quickFixes.filter((q) => q.category_id === c.id && (q.platform ?? 'windows') === platform),
   }))
 
   return (
@@ -284,7 +284,7 @@ function ShortcutsTab() {
 
   const grouped = categories.map((c) => ({
     category: c,
-    items: shortcuts.filter((s) => s.category_id === c.id && s.platform === platform),
+    items: shortcuts.filter((s) => s.category_id === c.id && (s.platform ?? 'windows') === platform),
   }))
 
   return (
