@@ -67,9 +67,9 @@ export function StatsPage() {
   }
 
   const clearAll = async () => {
-    if (!window.confirm('모든 사용 기록을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) return
+    if (!window.confirm('Are you sure you want to delete all usage records? This action cannot be undone.')) return
     setClearingAll(true)
-    const { error } = await supabase.from('usage_logs').delete().neq('id', '')
+    const { error } = await supabase.from('usage_logs').delete().not('id', 'is', null)
     if (!error) {
       setLogs([])
     }
