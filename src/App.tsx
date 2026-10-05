@@ -1,5 +1,6 @@
 import { Navigate, Route, BrowserRouter as Router, Routes } from 'react-router-dom'
 import { AuthProvider, useAuth } from '@/contexts/AuthContext'
+import { PlatformProvider } from '@/contexts/PlatformContext'
 import { AppSidebar } from '@/components/AppSidebar'
 import { LoginPage } from '@/pages/LoginPage'
 import { DashboardPage } from '@/pages/DashboardPage'
@@ -125,7 +126,9 @@ export default function App() {
   return (
     <Router>
       <AuthProvider>
-        <AppRoutes />
+        <PlatformProvider>
+          <AppRoutes />
+        </PlatformProvider>
       </AuthProvider>
     </Router>
   )

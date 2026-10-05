@@ -13,6 +13,7 @@ export interface QuickFix {
   command: string
   requires_admin: boolean
   order: number
+  platform: 'windows' | 'mac'
 }
 
 export interface SettingsShortcut {
@@ -21,6 +22,7 @@ export interface SettingsShortcut {
   label: string
   uri: string
   order: number
+  platform: 'windows' | 'mac'
 }
 
 export interface Guide {

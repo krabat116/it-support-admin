@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { BookOpen, Cpu, FolderOpen } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { usePlatform } from '@/contexts/PlatformContext'
 
 interface Stats {
   categories: number
@@ -9,15 +10,17 @@ interface Stats {
 }
 
 export function DashboardPage() {
+  const { platform } = usePlatform()
   const [stats, setStats] = useState<Stats>({ categories: 0, guides: 0, quickFixes: 0 })
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const fetchStats = async () => {
+      setLoading(true)
       const [catRes, guideRes, qfRes] = await Promise.all([
         supabase.from('categories').select('id', { count: 'exact', head: true }),
         supabase.from('guides').select('id', { count: 'exact', head: true }),
-        supabase.from('quick_fixes').select('id', { count: 'exact', head: true }),
+        supabase.from('quick_fixes').select('id', { count: 'exact', head: true }).eq('platform', platform),
       ])
       setStats({
         categories: catRes.count ?? 0,
@@ -27,12 +30,14 @@ export function DashboardPage() {
       setLoading(false)
     }
     void fetchStats()
-  }, [])
+  }, [platform])
+
+  const platformLabel = platform === 'windows' ? 'Windows' : 'macOS'
 
   const cards = [
     { label: 'Categories', value: stats.categories, icon: FolderOpen, color: 'text-blue-600' },
     { label: 'PDF Guides', value: stats.guides, icon: BookOpen, color: 'text-green-600' },
-    { label: 'Quick Fix Items', value: stats.quickFixes, icon: Cpu, color: 'text-purple-600' },
+    { label: `Quick Fix Items (${platformLabel})`, value: stats.quickFixes, icon: Cpu, color: 'text-purple-600' },
   ]
 
   return (

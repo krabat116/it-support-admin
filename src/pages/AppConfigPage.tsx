@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Plus, Trash2 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { usePlatform } from '@/contexts/PlatformContext'
 import type { Category, QuickFix, SettingsShortcut } from '@/types'
 
 type Tab = 'categories' | 'quickfixes' | 'shortcuts'
@@ -90,6 +91,7 @@ function CategoriesTab() {
 
 /* ───────── Quick Fixes ───────── */
 function QuickFixesTab() {
+  const { platform } = usePlatform()
   const [quickFixes, setQuickFixes] = useState<QuickFix[]>([])
   const [categories, setCategories] = useState<Category[]>([])
   const [form, setForm] = useState({ category_id: '', label: '', command: '', requires_admin: false })
@@ -114,7 +116,7 @@ function QuickFixesTab() {
   const handleAdd = async () => {
     if (!form.label.trim() || !form.command.trim() || !form.category_id) return
     setSaving(true)
-    const inCategory = quickFixes.filter((q) => q.category_id === form.category_id)
+    const inCategory = quickFixes.filter((q) => q.category_id === form.category_id && q.platform === platform)
     const maxOrder = inCategory.reduce((m, q) => Math.max(m, q.order), 0)
     await supabase.from('quick_fixes').insert({
       category_id: form.category_id,
@@ -122,6 +124,7 @@ function QuickFixesTab() {
       command: form.command.trim(),
       requires_admin: form.requires_admin,
       order: maxOrder + 1,
+      platform,
     })
     setForm((f) => ({ ...f, label: '', command: '', requires_admin: false }))
     await fetchAll()
@@ -136,7 +139,7 @@ function QuickFixesTab() {
 
   const grouped = categories.map((c) => ({
     category: c,
-    items: quickFixes.filter((q) => q.category_id === c.id),
+    items: quickFixes.filter((q) => q.category_id === c.id && q.platform === platform),
   }))
 
   return (
@@ -163,7 +166,7 @@ function QuickFixesTab() {
           <input
             value={form.command}
             onChange={(e) => setForm((f) => ({ ...f, command: e.target.value }))}
-            placeholder="Command (e.g. ipconfig /flushdns)"
+            placeholder={platform === 'windows' ? 'Command (e.g. ipconfig /flushdns)' : 'Command (e.g. sudo dscacheutil -flushcache)'}
             className="col-span-1 rounded-md border border-input bg-background px-3 py-2 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-ring sm:col-span-2"
           />
           <label className="flex items-center gap-2 text-sm">
@@ -173,7 +176,7 @@ function QuickFixesTab() {
               onChange={(e) => setForm((f) => ({ ...f, requires_admin: e.target.checked }))}
               className="h-4 w-4"
             />
-            Requires admin privileges (UAC)
+            {platform === 'windows' ? 'Requires admin privileges (UAC)' : 'Requires sudo'}
           </label>
           <div className="flex justify-end">
             <button
@@ -208,7 +211,7 @@ function QuickFixesTab() {
                 </div>
                 {qf.requires_admin && (
                   <span className="rounded-full bg-orange-100 px-2 py-0.5 text-xs text-orange-700">
-                    UAC
+                    {platform === 'windows' ? 'UAC' : 'sudo'}
                   </span>
                 )}
                 <button
@@ -234,6 +237,7 @@ function QuickFixesTab() {
 
 /* ───────── Settings Shortcuts ───────── */
 function ShortcutsTab() {
+  const { platform } = usePlatform()
   const [shortcuts, setShortcuts] = useState<SettingsShortcut[]>([])
   const [categories, setCategories] = useState<Category[]>([])
   const [form, setForm] = useState({ category_id: '', label: '', uri: '' })
@@ -258,13 +262,14 @@ function ShortcutsTab() {
   const handleAdd = async () => {
     if (!form.label.trim() || !form.uri.trim() || !form.category_id) return
     setSaving(true)
-    const inCat = shortcuts.filter((s) => s.category_id === form.category_id)
+    const inCat = shortcuts.filter((s) => s.category_id === form.category_id && s.platform === platform)
     const maxOrder = inCat.reduce((m, s) => Math.max(m, s.order), 0)
     await supabase.from('settings_shortcuts').insert({
       category_id: form.category_id,
       label: form.label.trim(),
       uri: form.uri.trim(),
       order: maxOrder + 1,
+      platform,
     })
     setForm((f) => ({ ...f, label: '', uri: '' }))
     await fetchAll()
@@ -279,7 +284,7 @@ function ShortcutsTab() {
 
   const grouped = categories.map((c) => ({
     category: c,
-    items: shortcuts.filter((s) => s.category_id === c.id),
+    items: shortcuts.filter((s) => s.category_id === c.id && s.platform === platform),
   }))
 
   return (
@@ -306,7 +311,7 @@ function ShortcutsTab() {
           <input
             value={form.uri}
             onChange={(e) => setForm((f) => ({ ...f, uri: e.target.value }))}
-            placeholder="URI (예: ms-settings:network)"
+            placeholder={platform === 'windows' ? 'ms-settings:network' : 'x-apple.systempreferences:...'}
             className="col-span-1 rounded-md border border-input bg-background px-3 py-2 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-ring sm:col-span-2"
           />
           <div />
@@ -363,13 +368,17 @@ const TABS: { id: Tab; label: string }[] = [
 
 export function AppConfigPage() {
   const [activeTab, setActiveTab] = useState<Tab>('categories')
+  const { platform } = usePlatform()
+
+  const platformLabel = platform === 'windows' ? 'Windows' : 'macOS'
 
   return (
     <div>
       <div className="mb-6">
         <h2 className="text-2xl font-semibold">App Configuration</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Manage categories and button items for the tray app
+          Manage categories and button items for the tray app —{' '}
+          <span className="font-medium text-foreground">{platformLabel}</span>
         </p>
       </div>
 
