@@ -45,7 +45,7 @@ export function DashboardPage() {
       {loading ? (
         <p className="text-sm text-muted-foreground">Loading...</p>
       ) : (
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
           {cards.map(({ label, value, icon: Icon, color }) => (
             <div key={label} className="rounded-lg border bg-card p-6 shadow-sm">
               <div className="flex items-center justify-between">

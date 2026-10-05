@@ -90,14 +90,14 @@ export function GuidesPage() {
 
   return (
     <div>
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-2xl font-semibold">Guide Management</h2>
           <p className="mt-1 text-sm text-muted-foreground">Manage PDF guides by category</p>
         </div>
 
         {/* 업로드 영역 */}
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <select
             value={uploadCategory}
             onChange={(e) => setUploadCategory(e.target.value)}

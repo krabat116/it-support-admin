@@ -39,7 +39,7 @@ function CategoriesTab() {
   return (
     <div className="space-y-4">
       {/* 추가 폼 */}
-      <div className="flex items-center gap-3 rounded-lg border bg-muted/30 p-4">
+      <div className="flex flex-wrap items-center gap-3 rounded-lg border bg-muted/30 p-4">
         <input
           value={icon}
           onChange={(e) => setIcon(e.target.value)}
@@ -144,7 +144,7 @@ function QuickFixesTab() {
       {/* 추가 폼 */}
       <div className="rounded-lg border bg-muted/30 p-4">
         <p className="mb-3 text-sm font-medium">Add New Quick Fix</p>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <select
             value={form.category_id}
             onChange={(e) => setForm((f) => ({ ...f, category_id: e.target.value }))}
@@ -164,7 +164,7 @@ function QuickFixesTab() {
             value={form.command}
             onChange={(e) => setForm((f) => ({ ...f, command: e.target.value }))}
             placeholder="Command (e.g. ipconfig /flushdns)"
-            className="col-span-2 rounded-md border border-input bg-background px-3 py-2 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+            className="col-span-1 rounded-md border border-input bg-background px-3 py-2 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-ring sm:col-span-2"
           />
           <label className="flex items-center gap-2 text-sm">
             <input
@@ -287,7 +287,7 @@ function ShortcutsTab() {
       {/* 추가 폼 */}
       <div className="rounded-lg border bg-muted/30 p-4">
         <p className="mb-3 text-sm font-medium">Add New Settings Shortcut</p>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <select
             value={form.category_id}
             onChange={(e) => setForm((f) => ({ ...f, category_id: e.target.value }))}
@@ -307,7 +307,7 @@ function ShortcutsTab() {
             value={form.uri}
             onChange={(e) => setForm((f) => ({ ...f, uri: e.target.value }))}
             placeholder="URI (예: ms-settings:network)"
-            className="col-span-2 rounded-md border border-input bg-background px-3 py-2 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+            className="col-span-1 rounded-md border border-input bg-background px-3 py-2 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-ring sm:col-span-2"
           />
           <div />
           <div className="flex justify-end">

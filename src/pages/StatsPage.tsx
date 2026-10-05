@@ -113,7 +113,7 @@ export function StatsPage() {
       </div>
 
       {/* Summary cards */}
-      <div className="mb-8 grid grid-cols-4 gap-4">
+      <div className="mb-8 grid grid-cols-2 gap-4 md:grid-cols-4">
         {[
           { label: 'Total Executions', value: totalEvents },
           { label: 'Success Rate', value: `${successRate}%` },
@@ -127,7 +127,7 @@ export function StatsPage() {
         ))}
       </div>
 
-      <div className="mb-8 grid grid-cols-2 gap-6">
+      <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2">
         {/* Top actions */}
         <div className="rounded-lg border bg-card p-5 shadow-sm">
           <h3 className="mb-3 font-medium">Most Used Quick Fixes</h3>
